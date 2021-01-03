@@ -3,7 +3,7 @@
 namespace Star.Tests
 {
     [TestFixture]
-    public class StarTests
+    public class StarTests : BaseStarTests
     {
         [Test]
         public void Test()
