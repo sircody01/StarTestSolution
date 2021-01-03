@@ -16,7 +16,7 @@ namespace Star.Pages
 
         public override bool IsActive()
         {
-            throw new System.NotImplementedException();
+            return true;
         }
 
         #endregion

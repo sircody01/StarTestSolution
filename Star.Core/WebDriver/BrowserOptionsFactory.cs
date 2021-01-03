@@ -55,7 +55,7 @@ namespace Star.Core.WebDriver
         {
             var opts = new EdgeOptions
             {
-                //UseInPrivateBrowsing = true
+                UseInPrivateBrowsing = true
             };
 
             return opts;

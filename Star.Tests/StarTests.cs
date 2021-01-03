@@ -8,7 +8,25 @@ namespace Star.Tests
         [Test]
         public void Test()
         {
-            Assert.IsFalse(false);
+            ProDinner
+                .NavigateToHome()
+                .HomeActionOne()
+                .HomeActionTwo()
+                .NavigateToMeals()
+                .MealsActionOne()
+                .MealsActionTwo()
+                .NavigateToChefs()
+                .ChefActionOne()
+                .ChefActionTwo()
+                .NavigateToCountries()
+                .CountryActionOne()
+                .CountryActionTwo()
+                .NavigateToDinners()
+                .DinnerActionOne()
+                .DinnerActionTwo()
+                .NavigateToFeedback()
+                .FeedbackActionOne()
+                .FeedbackActionTwo();
         }
     }
 }

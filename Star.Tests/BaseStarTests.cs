@@ -1,5 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
+using OpenQA.Selenium;
 using Star.Core;
 
 namespace Star.Tests
@@ -11,7 +12,11 @@ namespace Star.Tests
         [SetUp]
         public void TestInitialize()
         {
-            BaseTestInitialize($"https://www.myapp.com/{ApplicationSettings.TargetRegion}", ApplicationSettings.StarDriverType);
+            BaseTestInitialize($"https://prodinner.aspnetawesome.com/", ApplicationSettings.StarDriverType);
+            // Suppress the "Accept cookies" message
+            TestWebDriver.Manage().Cookies.AddCookie(new Cookie("CookieMsg", "", "aspnetawesome.com", "/", DateTime.Now.AddMinutes(120)));
+            TestWebDriver.Navigate().Refresh();
+
             Host = new Uri(TestWebDriver.Url).Host;
             ProDinner = new Pages.ProDinnerApp(this);
         }

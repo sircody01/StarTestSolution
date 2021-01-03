@@ -691,48 +691,5 @@ namespace Star.Core.Extensions
             var apiStatus = webDriver.ExecuteJavaScript<long>(script, url);
             return apiStatus;
         }
-
-        public static void ClearSurveyIfPresent(this IWebDriver webDriver)
-        {
-            webDriver.WaitForPageLoad(ApplicationSettings.PageLoadTimeSpan);
-            webDriver.Manage().Timeouts().ImplicitWait = TimeSpan.Zero;
-            webDriver.WaitFor(d => d.ElementExists(By.Id("forgot-password-for-sign-in")) || d.FindElements(By.CssSelector("div[class^=loader]")).Count(e => e.Displayed) == 0, ApplicationSettings.ElementLoadTimeSpan);
-
-            var feedbackPopup = webDriver.FindElements(By.Id("iframeSurvey"));
-            if (feedbackPopup.Count > 0)
-            {
-                webDriver.SwitchTo().Frame(feedbackPopup[0]);
-                var noThanks = webDriver.FindElement(By.CssSelector("#noButton > span"));
-                noThanks.Click();
-                webDriver.SwitchTo().DefaultContent();
-            }
-            var survey = webDriver.FindElements(By.Id("ipeL"));
-            if (survey.Count > 0 && survey[0].Displayed)
-                webDriver.ExecuteJavaScript<object>("clWin()");
-
-            survey = webDriver.FindElements(By.Id("tntContainer"));
-            if (survey.Count > 0 && survey[0].Displayed)
-            {
-                webDriver.ScrollIntoView(survey.First().FindElement(By.ClassName("tntBtnNo")));
-                survey.First().FindElement(By.ClassName("tntBtnNo")).Click();
-            }
-
-            var closeButton = webDriver.FindElements(By.Id("uif_modal_close"));
-            if (closeButton.Count > 0 && closeButton[0].Displayed)
-            {
-                closeButton[0].Click();
-                webDriver.WaitFor(d => d.FindElements(By.CssSelector("div.modal")).Count == 0, ApplicationSettings.ElementLoadTimeSpan);
-            }
-            webDriver.Manage().Timeouts().ImplicitWait = ApplicationSettings.ElementLoadTimeSpan;
-
-            //bottom cookie bar
-            webDriver.ExecuteJavaScript<object>(@"
-               if(window.jQuery !== undefined) {
-                    $('#_evh-ric').css('display', 'none');
-                    $('#_evh-button').css('display', 'none');
-                    $('#_evidon_banner').css('display', 'none');
-                }
-            ");
-        }
     }
 }

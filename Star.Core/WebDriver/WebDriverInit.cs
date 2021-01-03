@@ -70,9 +70,11 @@ namespace Star.Core.WebDriver
                     driver = chromeDriver;
                     break;
                 case WebDriverType.Firefox:
-                    //var firefoxProfile = optionsFactory.GetFirefoxProfile(browserOptions);
-                    var firefoxProfile = new FirefoxOptions();
-                    var firefoxDriver = new FirefoxDriver(ApplicationSettings.AssemblyDirectory, firefoxProfile,
+                    // If we don't launch the FirefoxDriver this way, it runs VERY slowly in a .net core application
+                    FirefoxDriverService geckoService = FirefoxDriverService.CreateDefaultService();
+                    geckoService.Host = "::1";
+                    var firefoxProfile = optionsFactory.GetFirefoxProfile(browserOptions);
+                    var firefoxDriver = new FirefoxDriver(geckoService, firefoxProfile,
                         ApplicationSettings.SeleniumCommandTimeOutTimeSpan);
                     driver = firefoxDriver;
                     break;
@@ -83,9 +85,10 @@ namespace Star.Core.WebDriver
                     driver = ieDriver;
                     break;
                 case WebDriverType.Edge:
+                    // Trying to launch the EdgeDriver any other way results in "unknown error"
+                    var service = EdgeDriverService.CreateDefaultService(ApplicationSettings.AssemblyDirectory, "msedgedriver.exe");
                     var edgeOptions = optionsFactory.GetEdgeOptions(browserOptions);
-                    var edgeDriver = new EdgeDriver(ApplicationSettings.AssemblyDirectory, edgeOptions,
-                        ApplicationSettings.SeleniumCommandTimeOutTimeSpan);
+                    var edgeDriver = new EdgeDriver(service, edgeOptions);
                     driver = edgeDriver;
                     break;
                 default:

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Management;
@@ -18,6 +19,7 @@ namespace Star.Core
             public int PageLoadTimeout { get; set; }
             public int SeleniumCommandTimeout { get; set; }
             public string StarDriverType { get; set; }
+            public string ScreenResolution { get; set; }
             public string TargetEnvironment { get; set; }
             public string TargetRegion { get; set; }
             public string TargetCountry { get; set; }
@@ -62,6 +64,23 @@ namespace Star.Core
         public static TimeSpan PageLoadTimeSpan => TimeSpan.FromSeconds(Settings.PageLoadTimeout);
         public static TimeSpan SeleniumCommandTimeOutTimeSpan => TimeSpan.FromSeconds(Settings.SeleniumCommandTimeout);
         public static WebDriverType StarDriverType => Enum.Parse<WebDriverType>(Settings.StarDriverType);
+        public static Size ScreenResolution
+        {
+            get
+            {
+                try
+                {
+                    var a = Settings.ScreenResolution.Split(new char[] { 'x' });
+                    return new Size()
+                    {
+                        Width = int.Parse(a[0]),
+                        Height = int.Parse(a[1])
+                    };
+                }
+                catch (Exception) { }
+                return Size.Empty;
+            }
+        }
 
         public static string AssemblyDirectory
         {

@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using NUnit.Framework;
 using OpenQA.Selenium;
 using Star.Core;
 using Star.Core.Extensions;
 using Star.Core.Page;
 using Star.Pages.Navigation;
+using Star.Pages.PartialPages;
 
 namespace Star.Pages
 {
@@ -25,7 +27,9 @@ namespace Star.Pages
 
         #region Common page elements
 
-        private IWebElement CurrentHtml => WebDriver.FindElement(By.XPath("//*"));
+        private IWebElement _currentHtml => WebDriver.FindElement(By.XPath("//*"));
+        private IWebElement _aboutDiv => WebDriver.FindElements(By.CssSelector(@"body > div.o-pwrap")).FirstOrDefault<IWebElement>();
+        private readonly AboutPartialPage About;
 
         #endregion
 
@@ -40,6 +44,15 @@ namespace Star.Pages
         protected ProDinnerPage(ref IWebTest test)
             : base(ref test)
         {
+            // The About dialog is not present in the DOM until the About menu item is clicked.
+            // Once it's present, it's shown and hidden using "styele = display:none".
+            // Must clear implicit wait else the FindElements will wait for the element to exist.
+            // Instead we want it to immediately return if the element does not yet exist.
+            WebDriver.Manage().Timeouts().ImplicitWait = TimeSpan.Zero;
+            if (_aboutDiv != null)
+                About = new AboutPartialPage(this, ref test, _aboutDiv);
+            WebDriver.Manage().Timeouts().ImplicitWait = ApplicationSettings.ElementLoadTimeSpan;
+            Assert.IsTrue(IsActive());
         }
 
         #endregion
@@ -51,7 +64,7 @@ namespace Star.Pages
             get
             {
                 const string datePattern = "[0-9]{1,2}/[0-9]{1,2}/[0-9]{4}";
-                var outerHtml = Regex.Replace(CurrentHtml.GetAttribute("outerHTML"), @"Built On:(.*?)" + datePattern, "");
+                var outerHtml = Regex.Replace(_currentHtml.GetAttribute("outerHTML"), @"Built On:(.*?)" + datePattern, "");
                 var dateMatches = Regex.Matches(outerHtml, datePattern);
                 return (from object date in dateMatches select date.ToString()).ToList();
             }
