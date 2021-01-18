@@ -8,5 +8,6 @@ namespace Star.Core
         string Scheme { get; }
         string Host { get; }
         string Country { get; }
+        T DataCache<T>() where T : new();
     }
 }

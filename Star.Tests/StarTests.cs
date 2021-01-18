@@ -2,31 +2,37 @@
 
 namespace Star.Tests
 {
+    [Parallelizable(scope: ParallelScope.All)]
     [TestFixture]
     public class StarTests : BaseStarTests
     {
         [Test]
-        public void Test()
+        public void Test1([Values("One It's home time", "One It's second home time")] string homeMsg,
+            [Values("One It's meal time", "One It's second meal time")] string mealsMsg,
+            [Values("One It's chef time")] string chefMsg,
+            [Values("One It's country time")] string countryMsg,
+            [Values("One It's dinner time")] string dinnerMsg,
+            [Values("One It's feedback time")] string feedbackMsg)
         {
             ProDinner
                 .NavigateToHome()
-                .HomeActionOne()
-                .HomeActionTwo()
+                .HomeActionOne(homeMsg)
+                .HomeActionTwo(homeMsg)
                 .NavigateToMeals()
-                .MealsActionOne()
-                .MealsActionTwo()
+                .MealsActionOne(mealsMsg)
+                .MealsActionTwo(mealsMsg)
                 .NavigateToChefs()
-                .ChefActionOne()
-                .ChefActionTwo()
+                .ChefActionOne(chefMsg)
+                .ChefActionTwo(chefMsg)
                 .NavigateToCountries()
-                .CountryActionOne()
-                .CountryActionTwo()
+                .CountryActionOne(countryMsg)
+                .CountryActionTwo(countryMsg)
                 .NavigateToDinners()
-                .DinnerActionOne()
-                .DinnerActionTwo()
+                .DinnerActionOne(dinnerMsg)
+                .DinnerActionTwo(dinnerMsg)
                 .NavigateToFeedback()
-                .FeedbackActionOne()
-                .FeedbackActionTwo();
+                .FeedbackActionOne(feedbackMsg)
+                .FeedbackActionTwo(feedbackMsg);
         }
     }
 }

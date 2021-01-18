@@ -7,7 +7,6 @@ namespace Star.Core.Page.PageParts
     {
     }
 
-    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     public abstract class PagePart : IStarPagePart
     {
         #region Constructors
@@ -31,7 +30,7 @@ namespace Star.Core.Page.PageParts
         #region Properties
 
         public IWebDriver WebDriver { get; }
-        private IWebElement ParentElement { get; }
+        protected IWebElement ParentElement { get; }
         protected IPage ParentPage { get; }
 
         #endregion

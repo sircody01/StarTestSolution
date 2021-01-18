@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using Star.Core;
+using Star.Models;
 
 namespace Star.Pages
 {
@@ -11,15 +12,17 @@ namespace Star.Pages
 
         }
 
-        public DinnerPage DinnerActionOne()
+        public DinnerPage DinnerActionOne(string dinnerMsg)
         {
             TestContext.WriteLine("Doing dinner action one");
+            Test.DataCache<SimplePOCO>().Announcement = dinnerMsg;
             return this;
         }
 
-        public DinnerPage DinnerActionTwo()
+        public DinnerPage DinnerActionTwo(string dinnerMsg)
         {
             TestContext.WriteLine("Doing dinner action two");
+            Assert.AreEqual(dinnerMsg, Test.DataCache<SimplePOCO>().Announcement);
             return this;
         }
 
