@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Drawing;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
@@ -12,19 +13,60 @@ namespace Star.Core
     [TestFixture]
     public abstract class BaseWebTest : WebDriverInit, IWebTest
     {
+        #region Embedded private classes
+
+        /// <summary>
+        /// This is a private POCO used for storing each tests Selenium WebDriver in the global data cache.
+        /// </summary>
+        private class CachedTestsWebDriver
+        {
+            public IWebDriver Driver { get; set; }
+        }
+
+        #endregion
+
+        #region Class Variables
+
+        // This is a dictionary of test data cache dictionaries. There is one dictionary per test actively running.
+        // The outer, or parent dictionary uses NUnit's unique test ID as the key.
+        // The dictionary for each test uses the POCO's type as the key.
+        private static ConcurrentDictionary<string, ConcurrentDictionary<Type, object>> _runningTestsDataDictionaries;
+
+        #endregion
+
         #region Properties
 
-        public IWebDriver TestWebDriver { get; private set; }
+        /// <summary>
+        /// The Selenium webdriver used by the rest of the test. There's one webdriver, one browser per running test.
+        /// </summary>
+        public IWebDriver TestWebDriver
+        {
+            get
+            {
+                var d = DataCache<CachedTestsWebDriver>();
+                return d.Driver;
+            }
+            private set
+            {
+                DataCache<CachedTestsWebDriver>().Driver = value;
+            }
+        }
         public string Scheme { get; protected set; }
         public string Host { get; protected set; }
         public string Country { get; protected set; }
-        public object TestStartTime { get; private set; }
+        public DateTime TestStartTime { get; private set; }
 
         private object _targetBrowser;
 
         #endregion
 
         #region Setup & Cleanup
+
+        [OneTimeSetUp]
+        public void Init()
+        {
+            _runningTestsDataDictionaries = new ConcurrentDictionary<string, ConcurrentDictionary<Type, object>>();
+        }
 
         protected void BaseTestInitialize(string uri, WebDriverType driverToUse)
         {
@@ -81,6 +123,35 @@ namespace Star.Core
                 {
                 }
             }
+        }
+
+        #endregion
+
+        #region Public Methods
+
+        public T DataCache<T>() where T : new()
+        {
+            // Try to get the tests data cache ditionary
+            if (_runningTestsDataDictionaries.TryGetValue(TestContext.CurrentContext.Test.ID, out ConcurrentDictionary<Type, object> testsDataCache))
+            {
+                // We succeeded in getting the tests data cache dictionary. Now try to get the POCO the test is asking for by the object type.
+                if (testsDataCache.TryGetValue(typeof(T), out object o))
+                {
+                    // We succeeded in getting the POCO the test is looking for. Return it to the test.
+                    return (T)o;
+                }
+            }
+            else
+            {
+                // There is no data cache dictionary for the currently executing test so let's create one and add it.
+                testsDataCache = new ConcurrentDictionary<Type, object>();
+                _runningTestsDataDictionaries.TryAdd(TestContext.CurrentContext.Test.ID, testsDataCache);
+            }
+
+            // The POCO the test is looking for does not exist so let's create one, add it to the tests data dictionary and return it to the test.
+            T poco = new T();
+            testsDataCache.TryAdd(typeof(T), poco);
+            return poco;
         }
 
         #endregion

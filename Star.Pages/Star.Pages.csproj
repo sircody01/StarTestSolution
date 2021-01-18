@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Star.Core\Star.Core.csproj" />
+    <ProjectReference Include="..\Star.Models\Star.Models.csproj" />
   </ItemGroup>
 
 </Project>

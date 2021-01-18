@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using Star.Core;
+using Star.Models;
 
 namespace Star.Pages
 {
@@ -11,14 +12,16 @@ namespace Star.Pages
 
         }
 
-        public HomePage HomeActionOne()
+        public HomePage HomeActionOne(string homeMsg)
         {
+            Test.DataCache<SimplePOCO>().Announcement = homeMsg;
             TestContext.WriteLine("Doing home action one");
             return this;
         }
 
-        public HomePage HomeActionTwo()
+        public HomePage HomeActionTwo(string homeMsg)
         {
+            Assert.AreEqual(homeMsg, Test.DataCache<SimplePOCO>().Announcement);
             TestContext.WriteLine("Doing home action two");
             return this;
         }
