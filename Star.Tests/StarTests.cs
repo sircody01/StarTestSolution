@@ -34,5 +34,20 @@ namespace Star.Tests
                 .FeedbackActionOne(feedbackMsg)
                 .FeedbackActionTwo(feedbackMsg);
         }
+
+        [Test]
+        public void HomePageGridSize()
+        {
+            ProDinner
+                .NavigateToHome()
+                .ChangePageSize(5)
+                .VerifyCurrentPageSize()
+                .ChangePageSize(10)
+                .VerifyCurrentPageSize()
+                .ChangePageSize(20)
+                .VerifyCurrentPageSize()
+                .ChangePageSize(50)
+                .VerifyCurrentPageSize();
+        }
     }
 }
