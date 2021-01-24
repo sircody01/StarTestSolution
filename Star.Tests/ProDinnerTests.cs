@@ -4,7 +4,7 @@ namespace Star.Tests
 {
     [Parallelizable(scope: ParallelScope.All)]
     [TestFixture]
-    public class StarTests : BaseStarTests
+    public class ProDinnerTests : BaseStarTests
     {
         [Test]
         public void Test1([Values("One It's home time", "One It's second home time")] string homeMsg,
@@ -33,6 +33,21 @@ namespace Star.Tests
                 .NavigateToFeedback()
                 .FeedbackActionOne(feedbackMsg)
                 .FeedbackActionTwo(feedbackMsg);
+        }
+
+        [Test]
+        public void HomePageGridSize()
+        {
+            ProDinner
+                .NavigateToHome()
+                .ChangePageSize(5)
+                .VerifyCurrentPageSize()
+                .ChangePageSize(10)
+                .VerifyCurrentPageSize()
+                .ChangePageSize(20)
+                .VerifyCurrentPageSize()
+                .ChangePageSize(50)
+                .VerifyCurrentPageSize();
         }
     }
 }

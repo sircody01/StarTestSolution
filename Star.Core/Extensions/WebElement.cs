@@ -242,7 +242,7 @@ namespace Star.Core.Extensions
         #region WaitFor Methods
 
         /// <summary>
-        ///     WaitForAnElement  - Waits for the element for specified time or until it exists
+        ///     WaitForAnElement - Waits for the element for specified time or until it exists
         /// </summary>
         /// <param name="element">Current Element</param>
         /// <param name="by">
@@ -278,7 +278,7 @@ namespace Star.Core.Extensions
         }
 
         /// <summary>
-        ///     FindElement  - Waits for the element for specified time or until it exists and returns the IWebElement
+        ///     FindElement - Waits for the element for specified time or until it exists and returns the IWebElement
         /// </summary>
         /// <param name="element">The element - This web Element</param>
         /// <param name="by">The by - Locator using By</param>
@@ -291,7 +291,7 @@ namespace Star.Core.Extensions
         }
 
         /// <summary>
-        ///     FindElements  - Waits for the elements for specified time or until they exist and returns the IWebElement
+        ///     FindElements - Waits for the elements for specified time or until they exist and returns the IWebElement
         ///     Collection
         /// </summary>
         /// <param name="element">The element - This web Element</param>
@@ -305,13 +305,13 @@ namespace Star.Core.Extensions
         }
 
         /// <summary>
-        ///     WaitForElement  - Waits for the element for specified time or until it exists
+        ///     WaitForElement - Waits for the element for specified time or until it exists
         /// </summary>
         /// <param name="element">Current Element</param>
         /// <param name="by">The by - Locator using By</param>
         /// <param name="timeout">The amount of time to wait for the element to load before returning.</param>
         /// <param name="logger">The log4net ILog to use when logging errors.</param>
-        /// <param name="supressException">The suppress Exception - bool Type</param>
+        /// <param name="supressException">Whether or not to rethrow the exception. Default value is true.</param>
         public static void WaitForElementDisplayed(this IWebElement element, By by, TimeSpan timeout,
             bool supressException = true)
         {
@@ -337,14 +337,14 @@ namespace Star.Core.Extensions
         }
 
         /// <summary>
-        ///     WaitForElementVisible  - Waits for the element Visible for specified time or until it is displayed within specified
+        ///     WaitForElementVisible - Waits for the element Visible for specified time or until it is displayed within specified
         ///     time
         /// </summary>
         /// <param name="element">The driver - This web Driver</param>
         /// <param name="by">The by - Locator using By</param>
         /// <param name="timeout">The amount of time to wait for the element to load before returning.</param>
         /// <param name="logger">The log4net ILog to use when logging errors.</param>
-        /// <param name="suppressException">The suppressException - bool Type</param>
+        /// <param name="suppressException">Whether or not to rethrow the exception. Default value is true.</param>
         public static void WaitForElementVisible(this IWebElement element, By by, TimeSpan timeout,
             bool suppressException = true)
         {
@@ -375,13 +375,13 @@ namespace Star.Core.Extensions
         }
 
         /// <summary>
-        ///     WaitForAnElement  - Waits for the element for specified time or until it exists
+        ///     WaitForAnElement - Waits for the element for specified time or until it exists
         /// </summary>
         /// <param name="element">Current Element</param>
         /// ///
         /// <param name="timeout">The amount of time to wait for the element to load before returning.</param>
         /// <param name="logger">The log4net ILog to use when logging errors.</param>
-        /// <param name="suppressException">The suppressException - bool Type</param>
+        /// <param name="suppressException">Whether or not to rethrow the exception. Default value is true.</param>
         public static void WaitForElementDisplayed(this IWebElement element, TimeSpan timeout,
             bool suppressException = true)
         {
@@ -406,13 +406,13 @@ namespace Star.Core.Extensions
         }
 
         /// <summary>
-        ///     WaitForAnElementVisible  - Waits for the element Visible for specified time or until it is displayed within
+        ///     WaitForAnElementVisible - Waits for the element Visible for specified time or until it is displayed within
         ///     specified time
         /// </summary>
         /// <param name="element">The driver - This web Driver</param>
         /// <param name="timeout">The amount of time to wait for the element to load before returning.</param>
         /// <param name="logger">The log4net ILog to use when logging errors.</param>
-        /// <param name="suppressException">The suppressException - bool Type</param>
+        /// <param name="suppressException">Whether or not to rethrow the exception. Default value is true.</param>
         public static void WaitForElementVisible(this IWebElement element, TimeSpan timeout,
             bool suppressException = true)
         {
@@ -443,7 +443,7 @@ namespace Star.Core.Extensions
         }
 
         /// <summary>
-        ///     WaitFor  - WebElement Waits  until the Condition is true
+        ///     WaitFor - WebElement Waits until the Condition is true
         /// </summary>
         /// <param name="element">The element - This Web Element</param>
         /// <param name="attributeName">The attribute name - attribute name</param>
@@ -451,7 +451,7 @@ namespace Star.Core.Extensions
         /// <param name="searchFor">string searchFor</param>
         /// <param name="timeout">The amount of time to wait for the element to load before returning.</param>
         /// <param name="logger">The log4net ILog to use when logging errors.</param>
-        /// <param name="suppressException">The suppressException - bool Type</param>
+        /// <param name="suppressException">Whether or not to rethrow the exception. Default value is true.</param>
         public static void WaitFor(this IWebElement element, string attributeName,
             ElementPropertyFilter elementPropertyFilter, string searchFor, TimeSpan timeout,
             bool suppressException = true)
@@ -500,7 +500,7 @@ namespace Star.Core.Extensions
         }
 
         /// <summary>
-        ///     WaitFor  - WebElement Waits for Element Child until the Condition is true
+        ///     WaitFor - WebElement Waits for Element Child until the Condition is true
         /// </summary>
         /// <param name="element">The element - This Web Element</param>
         /// <param name="by">The by - By Locator</param>
@@ -509,7 +509,7 @@ namespace Star.Core.Extensions
         /// <param name="searchFor">string searchFor</param>
         /// <param name="timeout">The amount of time to wait for the element to load before returning.</param>
         /// <param name="logger">The log4net ILog to use when logging errors.</param>
-        /// <param name="suppressException">The suppressException - bool Type</param>
+        /// <param name="suppressException">Whether or not to rethrow the exception. Default value is true.</param>
         public static void WaitFor(this IWebElement element, By by, string attributeName,
             ElementPropertyFilter elementPropertyFilter, string searchFor, TimeSpan timeout,
             bool suppressException = true)
@@ -557,6 +557,40 @@ namespace Star.Core.Extensions
             }
         }
 
+        /// <summary>
+        ///     Waits for the specified function to be true.
+        /// </summary>
+        /// <param name="element">The IWebElement to act on.</param>
+        /// <param name="condition">Delegate function that must return a boolean.</param>
+        /// <param name="timeout">The amount of time to wait for the condition to be true.</param>
+        /// <param name="suppressException">Whether or not to rethrow the exception. Default value is true.</param>
+        public static void WaitFor(this IWebElement element, Func<IWebElement, bool> condition, TimeSpan timeout, bool suppressException = true)
+        {
+            try
+            {
+                var wait = new DefaultWait<IWebElement>(element) { Timeout = timeout };
+                wait.Until(condition);
+            }
+            catch (NoSuchElementException ex)
+            {
+                TestContext.WriteLine("Element Not Found. " + ex.Message);
+                if (!suppressException)
+                    throw;
+            }
+            catch (WebDriverTimeoutException ex)
+            {
+                TestContext.WriteLine("Element Timeout Exception. " + ex.Message);
+                if (!suppressException)
+                    throw;
+            }
+            catch (Exception ex)
+            {
+                TestContext.WriteLine("Exception thrown. Please see Exception details " + ex.Message);
+                if (!suppressException)
+                    throw;
+            }
+        }
+
         #endregion
     }
 
@@ -565,5 +599,4 @@ namespace Star.Core.Extensions
         public string Value;
         public string Text;
     }
-
 }

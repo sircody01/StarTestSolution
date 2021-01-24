@@ -25,7 +25,7 @@
                 .FeedbackActionTwo();
         }
 ```
-## Repo tags `v2.0` and `Episode-2` go with episode 2 of my YouTube channel. It demonstrates the concept of a `Global Data Cache` and how this is advantageous in web tests. Here is an exaple of how to use the global data cache. Note the `Test.DataCache<>` lines of code:
+## Repo tags `v2.0` and `Episode-2` go with episode 2 of my YouTube channel. It demonstrates the concept of a `Global Data Cache` and how this is advantageous in web tests. Here is an example of how to use the global data cache. Note the `Test.DataCache<>` lines of code:
 ```csharp
 namespace Star.Models
 {
@@ -49,6 +49,14 @@ namespace Star.Models
             // Verify that the value of the Announcement field stored in the Global Data Cache equals homeMsg
             Assert.AreEqual(homeMsg, Test.DataCache<SimplePOCO>().Announcement);
             TestContext.WriteLine("Doing home action two");
+            return this;
+        }
+```
+## Repo tags `v3.0` and `Episode-3` go with episode 3 of my YouTube channel. It demonstrates how to take advantage of `Fluent Assertions`. Here is an example of a fluent assertion:
+```csharp
+        public HomePage VerifyCurrentPageSize()
+        {
+            DinnersGridRows.Count.Should().Be(Test.DataCache<HomePageModel>().ExpectedPageSize);
             return this;
         }
 ```
