@@ -1,5 +1,4 @@
 ﻿using System;
-using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Edge;
@@ -57,8 +56,6 @@ namespace Star.Core.WebDriver
                 BrowserOptionFlag.IgnoreSecurityDomains,
                 BrowserOptionFlag.DisableNativeEvents
             };
-
-            TestContext.WriteLine($"Using browser: '{driverToUse}'");
 
             switch (driverToUse)
             {

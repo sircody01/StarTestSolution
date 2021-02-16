@@ -1,4 +1,7 @@
 # This is the `Software Test Automation Revealed aka S.T.A.R.` automation testing solution. It demonstrates a number of best practices in test automation with heavy emphasis on UI and Selenium based web tests. I use it in my weekly demonstrations posted on my YouTube channel called S.T.A.R.: https://www.youtube.com/channel/UCKTRl3jf0PsKT0zQJdKWbqg
+
+# Version 4.0 adds logging via Apache log4net and PostSharp. To take advantage of this you MUST download and install PostSharp: https://www.postsharp.net/download. During the install you will be asked which license option you wish to use. Please select the "Use PostSharp Community" option. This option is free to use and meets our logging needs perfectly. The log4net and PostSharp NuGet's have already been added to the solution.
+
 ## Repo tags `v1.0` and `Episode-1` go with episode 1 of my YouTube channel. It demonstrates the advantages of fluent style test coding. Here is an example of a fluent style test:
 ```csharp
         [Test]
@@ -57,6 +60,15 @@ namespace Star.Models
         public HomePage VerifyCurrentPageSize()
         {
             DinnersGridRows.Count.Should().Be(Test.DataCache<HomePageModel>().ExpectedPageSize);
+            return this;
+        }
+```
+## Repo tags v4.0 and Episode -4 go with episode 4 of my YouTube channel. It demonstrates how to add automatic detailed logging by combining and taking advantage of Apache log4net and PostSharp community edition. Optionally you can add explicit logging statements such as the `Test.Logger.Info` call demonstrated here:
+```csharp
+        public HomePage HomeActionTwo(string homeMsg)
+        {
+            Assert.AreEqual(homeMsg, Test.DataCache<SimplePOCO>().Announcement);
+            Test.Logger.Info("Doing home action two");
             return this;
         }
 ```

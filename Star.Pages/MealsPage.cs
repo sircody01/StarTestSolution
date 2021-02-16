@@ -15,14 +15,14 @@ namespace Star.Pages
         public MealsPage MealsActionOne(string mealsTime)
         {
             Test.DataCache<SimplePOCO>().Announcement = mealsTime;
-            TestContext.WriteLine("Doing meals action one");
+            Test.Logger.Info("Doing meals action one");
             return this;
         }
 
         public MealsPage MealsActionTwo(string mealsTime)
         {
             Assert.AreEqual(mealsTime, Test.DataCache<SimplePOCO>().Announcement);
-            TestContext.WriteLine("Doing meals action two");
+            Test.Logger.Info("Doing meals action two");
             return this;
         }
 

@@ -14,14 +14,14 @@ namespace Star.Pages
 
         public DinnerPage DinnerActionOne(string dinnerMsg)
         {
-            TestContext.WriteLine("Doing dinner action one");
+            Test.Logger.Info("Doing dinner action one");
             Test.DataCache<SimplePOCO>().Announcement = dinnerMsg;
             return this;
         }
 
         public DinnerPage DinnerActionTwo(string dinnerMsg)
         {
-            TestContext.WriteLine("Doing dinner action two");
+            Test.Logger.Info("Doing dinner action two");
             Assert.AreEqual(dinnerMsg, Test.DataCache<SimplePOCO>().Announcement);
             return this;
         }

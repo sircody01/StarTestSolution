@@ -1,5 +1,4 @@
 ﻿using System;
-using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using Star.Core.Exceptions;
@@ -34,7 +33,7 @@ namespace Star.Core.Page
 
         public void WaitForElement(By by)
         {
-            WebDriver.WaitForElement(by, ApplicationSettings.ElementLoadTimeSpan);
+            WebDriver.WaitForElement(by, ApplicationSettings.ElementLoadTimeSpan, Test.Logger);
         }
 
         protected static TimeSpan ElementLoadTimeSpan => ApplicationSettings.ElementLoadTimeSpan;
@@ -65,9 +64,9 @@ namespace Star.Core.Page
             catch (Exception ex)
             {
                 if (ex is WebDriverTimeoutException)
-                    TestContext.WriteLine(@"The specified wait time has expired.");
+                    Test.Logger.Error(@"The specified wait time has expired.");
 
-                TestContext.Out.WriteLine(string.Format(@"{0}:{1}", ErrorMessages.PageNotLoaded,
+                Test.Logger.Error(string.Format(@"{0}:{1}", ErrorMessages.PageNotLoaded,
                     ex.Message));
                 throw;
             }

@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using Dinobots.Core.WebDriver;
-using NUnit.Framework;
+using log4net;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Remote;
 using OpenQA.Selenium.Support.Extensions;
@@ -24,7 +24,7 @@ namespace Star.Core.Extensions
         /// <param name="timeout">The amount of time to wait for the element to load before returning.</param>
         /// <param name="logger">The log4net ILog to use when logging errors.</param>
         /// <param name="suppressException">if <c>true</c>, the timeout will not throw an exception. (Default is <c>true</c>)</param>
-        public static void WaitForElement(this IWebDriver driver, By by, TimeSpan timeout,
+        public static void WaitForElement(this IWebDriver driver, By by, TimeSpan timeout, ILog logger,
             bool suppressException = true)
         {
             try
@@ -34,25 +34,25 @@ namespace Star.Core.Extensions
             }
             catch (NoSuchElementException ex)
             {
-                TestContext.WriteLine("Element Not Found. " + ex.Message);
+                logger.Warn("Element Not Found. " + ex.Message);
                 if (!suppressException)
                     throw;
             }
             catch (WebDriverTimeoutException ex)
             {
-                TestContext.WriteLine("Element Timeout Exception. " + ex.Message);
+                logger.Warn("Element Timeout Exception. " + ex.Message);
                 if (!suppressException)
                     throw;
             }
             catch (NoSuchWindowException ex)
             {
-                TestContext.WriteLine("No such window Exception. " + ex.Message);
+                logger.Warn("No such window Exception. " + ex.Message);
                 if (!suppressException)
                     throw;
             }
             catch (Exception ex)
             {
-                TestContext.WriteLine("Exception thrown. Please see Exception details " + ex.Message);
+                logger.Warn("Exception thrown. Please see Exception details " + ex.Message);
                 if (!suppressException)
                     throw;
             }
@@ -192,7 +192,7 @@ namespace Star.Core.Extensions
         /// <param name="timeout">The amount of time to wait for the element to load before returning.</param>
         /// <param name="logger">The log4net ILog to use when logging errors.</param>
         /// <param name="suppressException">The suppressException - bool Type</param>
-        public static void WaitForElementDisplayed(this IWebDriver driver, By by, TimeSpan timeout, bool suppressException = true)
+        public static void WaitForElementDisplayed(this IWebDriver driver, By by, TimeSpan timeout, ILog logger, bool suppressException = true)
         {
             try
             {
@@ -201,19 +201,19 @@ namespace Star.Core.Extensions
             }
             catch (NoSuchElementException ex)
             {
-                TestContext.WriteLine("Element Not Found. " + ex.Message);
+                logger.Warn("Element Not Found. " + ex.Message);
                 if (!suppressException)
                     throw;
             }
             catch (WebDriverTimeoutException ex)
             {
-                TestContext.WriteLine("Element Timeout Exception. " + ex.Message);
+                logger.Warn("Element Timeout Exception. " + ex.Message);
                 if (!suppressException)
                     throw;
             }
             catch (Exception ex)
             {
-                TestContext.WriteLine("Exception thrown. Please see Exception details " + ex.Message);
+                logger.Warn("Exception thrown. Please see Exception details " + ex.Message);
                 if (!suppressException)
                     throw;
             }
@@ -227,7 +227,7 @@ namespace Star.Core.Extensions
         /// <param name="timeout">The amount of time to wait for the element to load before returning.</param>
         /// <param name="logger">The log4net ILog to use when logging errors.</param>
         /// <param name="suppressException">The suppressException - bool Type</param>
-        public static void WaitForElementVisible(this IWebDriver driver, By by, TimeSpan timeout, bool suppressException = true)
+        public static void WaitForElementVisible(this IWebDriver driver, By by, TimeSpan timeout, ILog logger, bool suppressException = true)
         {
             try
             {
@@ -236,19 +236,19 @@ namespace Star.Core.Extensions
             }
             catch (NoSuchElementException ex)
             {
-                TestContext.WriteLine("Element Not Found. " + ex.Message);
+                logger.Warn("Element Not Found. " + ex.Message);
                 if (!suppressException)
                     throw;
             }
             catch (WebDriverTimeoutException ex)
             {
-                TestContext.WriteLine("Element Timeout Exception. " + ex.Message);
+                logger.Warn("Element Timeout Exception. " + ex.Message);
                 if (!suppressException)
                     throw;
             }
             catch (Exception ex)
             {
-                TestContext.WriteLine("Exception thrown. Please see Exception details " + ex.Message);
+                logger.Warn("Exception thrown. Please see Exception details " + ex.Message);
                 if (!suppressException)
                     throw;
             }
@@ -262,7 +262,7 @@ namespace Star.Core.Extensions
         /// <param name="timeout">The amount of time to wait for the element to load before returning.</param>
         /// <param name="logger">The log4net ILog to use when logging errors.</param>
         /// <param name="suppressException">The suppressException - bool Type</param>
-        public static void WaitForElementClickable(this IWebDriver driver, By locator, TimeSpan timeout, bool suppressException = true)
+        public static void WaitForElementClickable(this IWebDriver driver, By locator, TimeSpan timeout, ILog logger, bool suppressException = true)
         {
             try
             {
@@ -271,19 +271,19 @@ namespace Star.Core.Extensions
             }
             catch (NoSuchElementException ex)
             {
-                TestContext.WriteLine("Element Not Found. " + ex.Message);
+                logger.Warn("Element Not Found. " + ex.Message);
                 if (!suppressException)
                     throw;
             }
             catch (WebDriverTimeoutException ex)
             {
-                TestContext.WriteLine("Element Timeout Exception. " + ex.Message);
+                logger.Warn("Element Timeout Exception. " + ex.Message);
                 if (!suppressException)
                     throw;
             }
             catch (Exception ex)
             {
-                TestContext.WriteLine("Exception thrown. Please see Exception details " + ex.Message);
+                logger.Warn("Exception thrown. Please see Exception details " + ex.Message);
                 if (!suppressException)
                     throw;
             }
@@ -297,7 +297,7 @@ namespace Star.Core.Extensions
         /// <param name="timeout">The amount of time to wait for the element to load before returning.</param>
         /// <param name="logger">The log4net ILog to use when logging errors.</param>
         /// <param name="suppressException">The suppressException - bool Type</param>
-        public static void WaitForElementExists(this IWebDriver driver, By locator, TimeSpan timeout, bool suppressException = true)
+        public static void WaitForElementExists(this IWebDriver driver, By locator, TimeSpan timeout, ILog logger, bool suppressException = true)
         {
             try
             {
@@ -306,19 +306,19 @@ namespace Star.Core.Extensions
             }
             catch (NoSuchElementException ex)
             {
-                TestContext.WriteLine("Element Not Found. " + ex.Message);
+                logger.Warn("Element Not Found. " + ex.Message);
                 if (!suppressException)
                     throw;
             }
             catch (WebDriverTimeoutException ex)
             {
-                TestContext.WriteLine("Element Timeout Exception. " + ex.Message);
+                logger.Warn("Element Timeout Exception. " + ex.Message);
                 if (!suppressException)
                     throw;
             }
             catch (Exception ex)
             {
-                TestContext.WriteLine("Exception thrown. Please see Exception details " + ex.Message);
+                logger.Warn("Exception thrown. Please see Exception details " + ex.Message);
                 if (!suppressException)
                     throw;
             }
@@ -332,7 +332,7 @@ namespace Star.Core.Extensions
         /// <param name="timeout">The amount of time to wait for the element to load before returning.</param>
         /// <param name="logger">The log4net ILog to use when logging errors.</param>
         /// <param name="suppressException">The suppressException - bool Type</param>
-        public static void WaitForElementToBeHidden(this IWebDriver driver, By by, TimeSpan timeout,
+        public static void WaitForElementToBeHidden(this IWebDriver driver, By by, TimeSpan timeout, ILog logger,
             bool suppressException = true)
         {
             try
@@ -342,25 +342,25 @@ namespace Star.Core.Extensions
             }
             catch (NoSuchElementException ex)
             {
-                TestContext.WriteLine("Element Not Found. " + ex.Message);
+                logger.Warn("Element Not Found. " + ex.Message);
                 if (!suppressException)
                     throw;
             }
             catch (WebDriverTimeoutException ex)
             {
-                TestContext.WriteLine("Element Timeout Exception. " + ex.Message);
+                logger.Warn("Element Timeout Exception. " + ex.Message);
                 if (!suppressException)
                     throw;
             }
             catch (StaleElementReferenceException ex)
             {
-                TestContext.WriteLine("Stale Element Reference Exception. " + ex.Message);
+                logger.Warn("Stale Element Reference Exception. " + ex.Message);
                 if (!suppressException)
                     throw;
             }
             catch (Exception ex)
             {
-                TestContext.WriteLine("Exception thrown. Please see Exception details " + ex.Message);
+                logger.Warn("Exception thrown. Please see Exception details " + ex.Message);
                 if (!suppressException)
                     throw;
             }
@@ -376,7 +376,7 @@ namespace Star.Core.Extensions
         /// <param name="logger">The log4net ILog to use when logging errors</param>
         /// <param name="suppressException">The suppressException - bool Type</param>
         public static void WaitForSelectOptionToBeSelected(this IWebDriver driver, IWebElement selectElement,
-            string optionValue, TimeSpan timeout, bool suppressException = true)
+            string optionValue, TimeSpan timeout, ILog logger, bool suppressException = true)
         {
             try
             {
@@ -390,7 +390,7 @@ namespace Star.Core.Extensions
             }
             catch (Exception ex)
             {
-                TestContext.WriteLine("Exception thrown. Please see Exception details " + ex.Message);
+                logger.Warn("Exception thrown. Please see Exception details " + ex.Message);
                 if (!suppressException)
                     throw;
             }
@@ -407,7 +407,7 @@ namespace Star.Core.Extensions
         /// <param name="timeout">The amount of time to wait for the element to load before returning.</param>
         /// <param name="logger">The log4net logger to use in the method.</param>
         /// <param name="suppressException">The suppressException - bool Type</param>
-        public static void WaitFor(this IWebDriver driver, By locator, string attributeName, ElementPropertyFilter elementPropertyFilter, string searchFor, TimeSpan timeout, bool suppressException = true)
+        public static void WaitFor(this IWebDriver driver, By locator, string attributeName, ElementPropertyFilter elementPropertyFilter, string searchFor, TimeSpan timeout, ILog logger, bool suppressException = true)
         {
             try
             {
@@ -433,19 +433,19 @@ namespace Star.Core.Extensions
             }
             catch (NoSuchElementException ex)
             {
-                TestContext.WriteLine("Element Not Found. " + ex.Message);
+                logger.Warn("Element Not Found. " + ex.Message);
                 if (!suppressException)
                     throw;
             }
             catch (WebDriverTimeoutException ex)
             {
-                TestContext.WriteLine("Element Timeout Exception. " + ex.Message);
+                logger.Warn("Element Timeout Exception. " + ex.Message);
                 if (!suppressException)
                     throw;
             }
             catch (Exception ex)
             {
-                TestContext.WriteLine("Exception thrown. Please see Exception details " + ex.Message);
+                logger.Warn("Exception thrown. Please see Exception details " + ex.Message);
                 if (!suppressException)
                     throw;
             }

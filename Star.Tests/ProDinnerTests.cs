@@ -49,5 +49,13 @@ namespace Star.Tests
                 .ChangePageSize(50)
                 .VerifyCurrentPageSize();
         }
+
+        [Test]
+        public void ExceptionDemonstrationTest()
+        {
+            ProDinner
+                .NavigateToHome()
+                .ThrowArtificialExceptionForDemo();
+        }
     }
 }

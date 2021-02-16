@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Drawing;
+using System.IO;
+using log4net;
+using log4net.Config;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 using OpenQA.Selenium;
@@ -18,9 +21,13 @@ namespace Star.Core
         /// <summary>
         /// This is a private POCO used for storing each tests Selenium WebDriver in the global data cache.
         /// </summary>
-        private class CachedTestsWebDriver
+        private class ThreadSafeTestProperties
         {
             public IWebDriver Driver { get; set; }
+            public int PostSharpIndent { get; set; }
+            public ILog PostSharpLogger { get; set; }
+            public ILog Logger { get; set; }
+            public DateTime TestStartTime { get; set; }
         }
 
         #endregion
@@ -31,32 +38,94 @@ namespace Star.Core
         // The outer, or parent dictionary uses NUnit's unique test ID as the key.
         // The dictionary for each test uses the POCO's type as the key.
         private static ConcurrentDictionary<string, ConcurrentDictionary<Type, object>> _runningTestsDataDictionaries;
+        private static string _testResultsFolder;
 
         #endregion
 
         #region Properties
 
+        public string Scheme { get; protected set; }
+        public string Host { get; protected set; }
+        public string Country { get; protected set; }
+
         /// <summary>
-        /// The Selenium webdriver used by the rest of the test. There's one webdriver, one browser per running test.
+        /// Captures when this specific test started. This will be used in test results to log when the test executed and how long it took to execute.
+        /// </summary>
+        public DateTime TestStartTime
+        {
+            get
+            {
+                var d = DataCache<ThreadSafeTestProperties>();
+                return d.TestStartTime;
+            }
+            private set { DataCache<ThreadSafeTestProperties>().TestStartTime = value; }
+        }
+
+        /// <summary>
+        /// The Selenium webdriver used by the test. There's one webdriver, one browser per running test.
         /// </summary>
         public IWebDriver TestWebDriver
         {
             get
             {
-                var d = DataCache<CachedTestsWebDriver>();
+                var d = DataCache<ThreadSafeTestProperties>();
                 return d.Driver;
             }
             private set
             {
-                DataCache<CachedTestsWebDriver>().Driver = value;
+                DataCache<ThreadSafeTestProperties>().Driver = value;
             }
         }
-        public string Scheme { get; protected set; }
-        public string Host { get; protected set; }
-        public string Country { get; protected set; }
-        public DateTime TestStartTime { get; private set; }
 
-        private object _targetBrowser;
+        /// <summary>
+        /// The log4net logger that may optionally be used throughout the test code.
+        /// </summary>
+        public ILog Logger
+        {
+            get
+            {
+                var d = DataCache<ThreadSafeTestProperties>();
+                return d.Logger;
+            }
+            private set
+            {
+                DataCache<ThreadSafeTestProperties>().Logger = value;
+            }
+        }
+
+        /// <summary>
+        /// The log4net logger used exclusively by PostSharp logging.
+        /// </summary>
+        public ILog PostSharpLogger
+        {
+            get
+            {
+                var d = DataCache<ThreadSafeTestProperties>();
+                return d.PostSharpLogger;
+            }
+            private set
+            {
+                DataCache<ThreadSafeTestProperties>().PostSharpLogger = value;
+            }
+        }
+
+        /// <summary>
+        /// Log output indent level used by PostSharp logging.
+        /// </summary>
+        public int PostSharpIndent
+        {
+            get
+            {
+                var d = DataCache<ThreadSafeTestProperties>();
+                return d.PostSharpIndent;
+            }
+            set
+            {
+                DataCache<ThreadSafeTestProperties>().PostSharpIndent = value;
+            }
+        }
+
+        private Browser _targetBrowser;
 
         #endregion
 
@@ -66,16 +135,43 @@ namespace Star.Core
         public void Init()
         {
             _runningTestsDataDictionaries = new ConcurrentDictionary<string, ConcurrentDictionary<Type, object>>();
+            _testResultsFolder = Path.Combine(TestContext.CurrentContext.WorkDirectory, "TestResults", DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss"));
         }
 
         protected void BaseTestInitialize(string uri, WebDriverType driverToUse)
         {
-            TestWebDriver = InitializeWebDriver(driverToUse);
-            TestWebDriver.Manage().Timeouts().ImplicitWait = ApplicationSettings.ElementLoadTimeSpan;
-            TestStartTime = DateTime.Now;
-            _targetBrowser = GetBrowserInformation(TestWebDriver);
-            TestWebDriver.Navigate().GoToUrl(uri);
-            VerifyWebDriverIsConnected();
+            // Create a new log file named specifically for this test. We'll get one log file per executed test.
+            var fileName = $"{TestContext.CurrentContext.Test.FullName}.log".Replace("\"", "'").Replace('/', '-').Replace(" - row:", " - row");
+            var _logFilePath = Path.Combine(_testResultsFolder, fileName);
+            var _loggerRepoString = fileName + "Repository";
+            var loggerRepository = LogManager.CreateRepository(_loggerRepoString);
+
+            ThreadContext.Properties["logPath"] = _logFilePath;
+            XmlConfigurator.Configure(loggerRepository, new FileInfo("log4net.config"));
+            PostSharpLogger = LogManager.GetLogger(_loggerRepoString, "Star.Pages.Logging.LogMethodAspect");
+            Logger = LogManager.GetLogger(_loggerRepoString, "Star.Tests.Logging");
+
+            Logger.InfoFormat("Log file stored at: {0}", _logFilePath);
+
+            try
+            {
+                TestWebDriver = InitializeWebDriver(driverToUse);
+                TestWebDriver.Manage().Timeouts().ImplicitWait = ApplicationSettings.ElementLoadTimeSpan;
+                TestStartTime = DateTime.Now;
+                _targetBrowser = GetBrowserInformation(TestWebDriver);
+                TestWebDriver.Navigate().GoToUrl(uri);
+                VerifyWebDriverIsConnected();
+                Logger.Info($"Running tests on {_targetBrowser.Name} version {_targetBrowser.Version}");
+                Logger.Info($"Completed Selenium WebDriver initialization. URL at start of test: {TestWebDriver.Url}.");
+
+            }
+            catch (Exception ex)
+            {
+                Logger.Info(ex.GetType().FullName + " " + ex.Message);
+                Logger.Info(ex.StackTrace);
+                TestCleanup();
+                throw;
+            }
 
             // Set a cookie which can be used by web analytics to filter out web traffic coming from our test automation.
             // We have to set the cookie AFTER navigating to the home page because Selenium can only set cookies in the domain of the currently loaded page.
@@ -95,6 +191,8 @@ namespace Star.Core
         [TearDown]
         public void TestCleanup()
         {
+            Logger.Info($"Test result: {TestContext.CurrentContext.Result.Outcome}");
+            Logger.InfoFormat("Test duration: {0:hh\\:mm\\:ss\\.f}", DateTime.Now - TestStartTime);
             var didTestFail =
                 TestContext.CurrentContext.Result.Outcome == ResultState.Failure ||
                 TestContext.CurrentContext.Result.Outcome == ResultState.Error ||
@@ -110,7 +208,7 @@ namespace Star.Core
             }
             catch (WebDriverException ex)
             {
-                TestContext.Out.WriteLine(ex.Message);
+                Logger.Error(ex.Message);
 
                 //Hide WebDriver exceptions here after the test has finished.
                 TestWebDriver = null;
@@ -121,6 +219,7 @@ namespace Star.Core
                 // If the test failed, capture important test assets created on Sauce Labs
                 if (didTestFail)
                 {
+                    Logger.Error($"URL of failed test: {TestWebDriver.Url}");
                 }
             }
         }
@@ -163,15 +262,15 @@ namespace Star.Core
             try
             {
                 // Read the URL from the TestWebDriver to verify that the instance is still responding.
-                TestContext.WriteLine($"URL at start of test: {TestWebDriver.Url}");
+                Logger.Info($"URL at start of test: {TestWebDriver.Url}");
             }
             catch (WebDriverException ex)
             {
-                TestContext.WriteLine("***** WARNING *****");
-                TestContext.WriteLine(ex.ToString());
-                TestContext.WriteLine("Lost contact with the WebDriver. This test will not continue.");
-                TestContext.WriteLine(string.Empty);
-                TestContext.WriteLine("***** END WARNING *****");
+                Logger.Info("***** WARNING *****");
+                Logger.Info(ex.ToString());
+                Logger.Info("Lost contact with the WebDriver. This test will not continue.");
+                Logger.Info(string.Empty);
+                Logger.Info("***** END WARNING *****");
                 Assert.Inconclusive("The test did not execute correctly. Please see the test output and retry.");
             }
         }
