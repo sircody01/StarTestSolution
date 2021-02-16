@@ -15,14 +15,14 @@ namespace Star.Pages
         public CountryPage CountryActionOne(string countrMsg)
         {
             Test.DataCache<SimplePOCO>().Announcement = countrMsg;
-            TestContext.WriteLine("Doing country action one");
+            Test.Logger.Info("Doing country action one");
             return this;
         }
 
         public CountryPage CountryActionTwo(string countrMsg)
         {
             Assert.AreEqual(countrMsg, Test.DataCache<SimplePOCO>().Announcement);
-            TestContext.WriteLine("Doing country action two");
+            Test.Logger.Info("Doing country action two");
             return this;
         }
 

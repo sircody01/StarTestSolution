@@ -15,14 +15,14 @@ namespace Star.Pages
         public ChefPage ChefActionOne(string chefMsg)
         {
             Test.DataCache<SimplePOCO>().Announcement = chefMsg;
-            TestContext.WriteLine("Doing chef action one");
+            Test.Logger.Info("Doing chef action one");
             return this;
         }
 
         public ChefPage ChefActionTwo(string chefMsg)
         {
             Assert.AreEqual(chefMsg, Test.DataCache<SimplePOCO>().Announcement);
-            TestContext.WriteLine("Doing chef action two");
+            Test.Logger.Info("Doing chef action two");
             return this;
         }
 

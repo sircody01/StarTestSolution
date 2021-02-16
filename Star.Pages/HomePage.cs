@@ -34,14 +34,15 @@ namespace Star.Pages
         public HomePage HomeActionOne(string homeMsg)
         {
             Test.DataCache<SimplePOCO>().Announcement = homeMsg;
-            TestContext.WriteLine("Doing home action one");
+            Test.Logger.Info("Doing home action one");
+            InternalMethodOne();
             return this;
         }
 
         public HomePage HomeActionTwo(string homeMsg)
         {
             Assert.AreEqual(homeMsg, Test.DataCache<SimplePOCO>().Announcement);
-            TestContext.WriteLine("Doing home action two");
+            Test.Logger.Info("Doing home action two");
             return this;
         }
 
@@ -55,6 +56,27 @@ namespace Star.Pages
             wait.Until(driver => DinnersGridRows.Count != oldRowsCount);
             Test.DataCache<HomePageModel>().ExpectedPageSize = newSize;
             return this;
+        }
+
+        public HomePage ThrowArtificialExceptionForDemo()
+        {
+            WebDriver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(1);
+            var e = WebDriver.FindElement(By.CssSelector("#InvalidId"));
+            return this;
+        }
+
+        #endregion
+
+        #region Internal Methods
+
+        public void InternalMethodOne()
+        {
+            InternalMethodTwo();
+        }
+
+        public void InternalMethodTwo()
+        {
+
         }
 
         #endregion
