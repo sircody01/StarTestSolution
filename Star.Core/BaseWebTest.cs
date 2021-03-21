@@ -197,6 +197,12 @@ namespace Star.Core
                 TestContext.CurrentContext.Result.Outcome == ResultState.Failure ||
                 TestContext.CurrentContext.Result.Outcome == ResultState.Error ||
                 TestContext.CurrentContext.Result.Outcome == ResultState.Inconclusive;
+
+            // If the test failed, capture important test assets created on Sauce Labs
+            if (didTestFail)
+            {
+                Logger.Error($"URL of failed test: {TestWebDriver.Url}");
+            }
             try
             {
                 if (TestWebDriver != null)
@@ -209,18 +215,8 @@ namespace Star.Core
             catch (WebDriverException ex)
             {
                 Logger.Error(ex.Message);
-
                 //Hide WebDriver exceptions here after the test has finished.
                 TestWebDriver = null;
-            }
-            finally
-            {
-                // This must be done AFTER closing the TestWebDriver
-                // If the test failed, capture important test assets created on Sauce Labs
-                if (didTestFail)
-                {
-                    Logger.Error($"URL of failed test: {TestWebDriver.Url}");
-                }
             }
         }
 
