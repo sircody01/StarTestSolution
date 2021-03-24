@@ -21,9 +21,9 @@ namespace Star.Core
             public string StarDriverType { get; set; }
             public string ScreenResolution { get; set; }
             public string TargetEnvironment { get; set; }
-            public string TargetRegion { get; set; }
             public string TargetCountry { get; set; }
-            public string Language { get; set; }
+            public string TargetLanguage { get; set; }
+            public string MongoDBConnectionString { get; set; }
         }
 
         #endregion
@@ -56,14 +56,15 @@ namespace Star.Core
         #region Properties
 
         public static string TargetEnvironment => Settings.TargetEnvironment;
-        public static string TargetRegion => Settings.TargetRegion;
         public static string TargetCountry => Settings.TargetCountry;
-        public static string Language => Settings.Language;
+        public static string TargetLanguage => Settings.TargetLanguage;
         public static string MachineName => Environment.MachineName;
         public static TimeSpan ElementLoadTimeSpan => TimeSpan.FromSeconds(Settings.ElementLoadTimeout);
         public static TimeSpan PageLoadTimeSpan => TimeSpan.FromSeconds(Settings.PageLoadTimeout);
         public static TimeSpan SeleniumCommandTimeOutTimeSpan => TimeSpan.FromSeconds(Settings.SeleniumCommandTimeout);
         public static WebDriverType StarDriverType => Enum.Parse<WebDriverType>(Settings.StarDriverType);
+        public static string MongoDBConnectionString => Settings.MongoDBConnectionString;
+
         public static Size ScreenResolution
         {
             get

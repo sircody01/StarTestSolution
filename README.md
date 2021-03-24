@@ -1,8 +1,29 @@
 # This is the `Software Test Automation Revealed aka S.T.A.R.` automation testing solution. It demonstrates a number of best practices in test automation with heavy emphasis on UI and Selenium based web tests. I use it in my weekly demonstrations posted on [my YouTube channel called S.T.A.R.](https://www.youtube.com/channel/UCKTRl3jf0PsKT0zQJdKWbqg)
 
-# Version 4.0 adds logging via Apache log4net and PostSharp. To take advantage of this you MUST [download and install PostSharp](https://www.postsharp.net/download). During the install you will be asked which license option you wish to use. Please select the "Use PostSharp Community" option. This option is free to use and meets our logging needs perfectly. The log4net and PostSharp NuGet's have already been added to the solution.
+## Version 5.0 adds fetching test input data from a database. In this project it uses MongoDB as the database of choice. You could use any database if you change how the database connection is made and reading the data from the database. The MongoDB NuGet's have already been added to the solution. Repo tags `v5.0` and `Episode-5` go with [episode 5](https://youtu.be/oexX1WMIClA) of my YouTube channel.
 
-## Repo tags `v4.0` and `Episode-4` go with [episode 4](https://youtu.be/YGP7TXVVuRI) of my YouTube channel. It demonstrates how to add automatic detailed logging by combining and taking advantage of Apache log4net and PostSharp community edition. Here's an example log of a successful test:
+Here is an example test reading and consuming data from the database:
+```csharp
+    public class DinnerPageTests : BaseStarTests
+    {
+        [Test]
+        public void CreateDinner()
+        {
+            var data = TestDataProvider.GetAll<DinnerModel>("STAR", "ProDinner", "Dinner");
+
+            ProDinner
+                .NavigateToDinners()
+                .CreateDinner(data)
+                .VerifyDinnerAdded(data);
+        }
+    }
+```
+
+## The URL to MongoDB Community edition can be found [here:](https://www.mongodb.com/try/download/community)
+
+## The URL to MongoDB Atlas can be found [here:](https://www.mongodb.com/cloud/atlas)
+
+## Version 4.0 adds logging via Apache log4net and PostSharp. To take advantage of this you MUST [download and install PostSharp](https://www.postsharp.net/download). During the install you will be asked which license option you wish to use. Please select the "Use PostSharp Community" option. This option is free to use and meets our logging needs perfectly. The log4net and PostSharp NuGet's have already been added to the solution. Repo tags `v4.0` and `Episode-4` go with [episode 4](https://youtu.be/YGP7TXVVuRI) of my YouTube channel. It demonstrates how to add automatic detailed logging by combining and taking advantage of Apache log4net and PostSharp community edition. Here's an example log of a successful test:
 ```
 2021-02-14 06:55:35,342 [INFO] - Log file stored at: D:\S.T.A.R\StarTestSolution\Star.Tests\bin\Debug\netcoreapp3.1\TestResults\2021-02-14 06-55-35\Star.Tests.ProDinnerTests.Test1('One It's home time','One It's meal time','One It's chef time','One It's country time','One It's dinner time','One It's feedback time').log
 2021-02-14 06:55:50,862 [INFO] - Running tests on Chrome version 88.0

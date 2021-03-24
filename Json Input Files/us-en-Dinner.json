@@ -1,0 +1,18 @@
+{
+    "Environment": "Prod",
+    "TargetCountry": "us",
+    "TargetLanguage": "en",
+    "TestDataKey": "Dinner",
+    "TestInputData": {
+        "Name": "STAR Dinner",
+        "Country": "United States",
+        "Chef": "Sana Harper",
+        "Address": "123 Main St",
+        "Start": {
+            "$date": "2021-03-04T06:00:00.000Z"
+        },
+        "Time": "8:30 AM",
+        "Meals": ["Rhinestone", "Poutine"],
+        "Duration": 20
+    }
+}
