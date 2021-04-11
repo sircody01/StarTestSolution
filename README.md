@@ -1,5 +1,46 @@
 # This is the `Software Test Automation Revealed aka S.T.A.R.` automation testing solution. It demonstrates a number of best practices in test automation with heavy emphasis on UI and Selenium based web tests. I use it in my weekly demonstrations posted on [my YouTube channel called S.T.A.R.](https://www.youtube.com/channel/UCKTRl3jf0PsKT0zQJdKWbqg)
 
+## Version 6.0 adds storing test results to a database. Repo tags `v6.0` and `Episode-6a` go with [episode 6 part 1](https://youtu.be/S3pimwpgPow) of my YouTube channel.
+In this project it uses MongoDB as the database of choice. There are 3 main items that get stored in MongoDB:
+1.  A test results document which contains a number of fields.
+2.  If the test fails it will capture the browsers page source.
+3.  If the test fails it will capture a screenshot of the browser.
+
+The fields stored in the test results document include:
+1. The fully qualified name of the test e.g. Star.Tests.DinnerPageTests.CreateDinner.
+2. The tests description.
+3. The list of test case id's.
+4. The list of test categories.
+5. The target test environment.
+6. The target country.
+7. The target language.
+8. The name of the web browser used to run the test.
+9. The version of the web browser used to run the test.
+10. The name of the machine that ran the test.
+11. The OS of the machine that ran the test.
+12. A flag indicating whether or not the test was executed on a CICD system.
+13. The test input data used to drive the test.
+14. The date and time the test was executed at.
+15. How long the test took to execute.
+16. The outcome of the test as reported by the NUnit test runner.
+17. The tests log output.
+18. The CICD build id or job id.
+19. The CICD pipeline id - which is unique to Gitlab.
+20. The id of the source code repository.
+21. The name of the branch used to run the test.
+
+To set the tests description, test case id's and/or test categories, add attributes to the test like this:
+```csharp
+        [Test]
+        [Description("Verifies that a new dinner can be correctly created.")]
+        [Property("TestCaseIds", 1)]
+        [Property("TestCaseIds", 2)]
+        [Property("TestCaseIds", 3)]
+        [Category("Create")]
+        public void CreateDinner()
+```
+You may add as many test case id's and as many test categories as you like. But there can be only one description.
+
 ## Version 5.0 adds fetching test input data from a database. In this project it uses MongoDB as the database of choice. You could use any database if you change how the database connection is made and reading the data from the database. The MongoDB NuGet's have already been added to the solution. Repo tags `v5.0` and `Episode-5` go with [episode 5](https://youtu.be/oexX1WMIClA) of my YouTube channel.
 
 Here is an example test reading and consuming data from the database:
