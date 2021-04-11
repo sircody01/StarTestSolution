@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using Dinobots.Core.WebDriver;
 using log4net;
@@ -690,6 +693,90 @@ namespace Star.Core.Extensions
                                   "xhr.send(null);" + "return xhr.status";
             var apiStatus = webDriver.ExecuteJavaScript<long>(script, url);
             return apiStatus;
+        }
+
+        public static string TakeScreenShot(this IWebDriver webDriver, string screenshotFolder, string fileName, ILog logger)
+        {
+            try
+            {
+                fileName = fileName.Replace("\"", "");
+                var dts = DateTime.Now.ToString("yyyy-MM-dd HH_mm_ss", CultureInfo.InvariantCulture);
+                Directory.CreateDirectory(screenshotFolder);
+
+                const string js = "window.scrollTo(0, {0}); return document.body.clientHeight - (window.scrollY + window.innerHeight);";
+
+                var bitmaps = new List<Bitmap>();
+                var pixelsRemaining = new TwoStepHistory<long>();
+                do
+                {
+                    var fullJs = string.Format(js, pixelsRemaining.HasValueSet
+                                                   ? "window.scrollY + window.innerHeight"
+                                                   : "0");
+                    pixelsRemaining.NewValue = webDriver.ExecuteJavaScript<long>(fullJs);
+                    var ss = ((ITakesScreenshot)webDriver).GetScreenshot();
+                    using var ms = new MemoryStream(ss.AsByteArray);
+                    bitmaps.Add(new Bitmap(ms));
+                } while (pixelsRemaining.NewValue > 0 && bitmaps.Count < 10);
+
+                if (pixelsRemaining.PreviousValue > 0 && pixelsRemaining.NewValue == 0)
+                {
+                    var last = bitmaps[^1];
+                    if (pixelsRemaining.PreviousValue < last.Height)
+                    {
+                        var clip = last.Clone(new Rectangle(0,
+                                                            last.Height - (int)pixelsRemaining.PreviousValue,
+                                                            last.Width,
+                                                            (int)pixelsRemaining.PreviousValue),
+                                                last.PixelFormat);
+                        last.Dispose();
+                        bitmaps.RemoveAt(bitmaps.Count - 1);
+                        bitmaps.Add(clip);
+                    }
+                }
+
+                var totalHeight = bitmaps.Sum(b => b.Height);
+                var pictureFileName = $"{screenshotFolder}\\{fileName}_{dts}.jpg";
+                using (var finalScreenshot = new Bitmap(bitmaps[0].Width, totalHeight, bitmaps[0].PixelFormat))
+                {
+                    using (var g = Graphics.FromImage(finalScreenshot))
+                    {
+                        var y = 0;
+                        foreach (var bmp in bitmaps)
+                        {
+                            g.DrawImage(bmp, new Point(0, y));
+                            y += bmp.Height;
+                            bmp.Dispose();
+                        }
+                    }
+                    finalScreenshot.Save(pictureFileName, ImageFormat.Jpeg);
+                }
+                return pictureFileName;
+            }
+            catch (Exception ex)
+            {
+                logger.Error($"ERROR: unable to capture screenshot ({ex.Message})");
+            }
+            return null;
+        }
+
+        private class TwoStepHistory<T>
+        {
+            private T _v0;
+
+            public T NewValue
+            {
+                get => _v0;
+                set
+                {
+                    PreviousValue = _v0;
+                    _v0 = value;
+                    HasValueSet = true;
+                }
+            }
+
+            public T PreviousValue { get; private set; }
+
+            public bool HasValueSet { get; private set; }
         }
     }
 }

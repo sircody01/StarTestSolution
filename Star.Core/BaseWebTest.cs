@@ -1,19 +1,25 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using log4net;
 using log4net.Config;
 using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.Extensions;
+using Star.Core.Extensions;
+using Star.Core.Types;
+using Star.Core.Utilities;
 using Star.Core.WebDriver;
 using UAParser;
 
 namespace Star.Core
 {
     [TestFixture]
+    [Timeout(ApplicationSettings.MethodTimeout)]
     public abstract class BaseWebTest : WebDriverInit, IWebTest
     {
         #region Embedded private classes
@@ -28,6 +34,8 @@ namespace Star.Core
             public ILog PostSharpLogger { get; set; }
             public ILog Logger { get; set; }
             public DateTime TestStartTime { get; set; }
+            public string LogFilePath { get; set; }
+            public object TestInputData { get; set; }
         }
 
         #endregion
@@ -125,6 +133,19 @@ namespace Star.Core
             }
         }
 
+        private string LogFilePath
+        {
+            get
+            {
+                var d = DataCache<ThreadSafeTestProperties>();
+                return d.LogFilePath;
+            }
+            set
+            {
+                DataCache<ThreadSafeTestProperties>().LogFilePath = value;
+            }
+        }
+
         private Browser _targetBrowser;
 
         #endregion
@@ -142,16 +163,16 @@ namespace Star.Core
         {
             // Create a new log file named specifically for this test. We'll get one log file per executed test.
             var fileName = $"{TestContext.CurrentContext.Test.FullName}.log".Replace("\"", "'").Replace('/', '-').Replace(" - row:", " - row");
-            var _logFilePath = Path.Combine(_testResultsFolder, fileName);
+            LogFilePath = Path.Combine(_testResultsFolder, fileName);
             var _loggerRepoString = fileName + "Repository";
             var loggerRepository = LogManager.CreateRepository(_loggerRepoString);
 
-            ThreadContext.Properties["logPath"] = _logFilePath;
+            ThreadContext.Properties["logPath"] = LogFilePath;
             XmlConfigurator.Configure(loggerRepository, new FileInfo("log4net.config"));
             PostSharpLogger = LogManager.GetLogger(_loggerRepoString, "Star.Pages.Logging.LogMethodAspect");
             Logger = LogManager.GetLogger(_loggerRepoString, "Star.Tests.Logging");
 
-            Logger.InfoFormat("Log file stored at: {0}", _logFilePath);
+            Logger.InfoFormat("Log file stored at: {0}", LogFilePath);
 
             try
             {
@@ -191,6 +212,7 @@ namespace Star.Core
         [TearDown]
         public void TestCleanup()
         {
+            var _testDuration = DateTime.Now - TestStartTime;
             Logger.Info($"Test result: {TestContext.CurrentContext.Result.Outcome}");
             Logger.InfoFormat("Test duration: {0:hh\\:mm\\:ss\\.f}", DateTime.Now - TestStartTime);
             var didTestFail =
@@ -198,9 +220,52 @@ namespace Star.Core
                 TestContext.CurrentContext.Result.Outcome == ResultState.Error ||
                 TestContext.CurrentContext.Result.Outcome == ResultState.Inconclusive;
 
+            bool.TryParse(Environment.GetEnvironmentVariable("OnCI"), out bool onCi);
+            // The following are for using Gitlab CICD. Repalce with equivalent for your CICD system.
+            int.TryParse(Environment.GetEnvironmentVariable("CI_PROJECT_ID"), out int projectId);
+            int.TryParse(Environment.GetEnvironmentVariable("CI_PIPELINE_ID"), out int pipelineId);
+            int.TryParse(Environment.GetEnvironmentVariable("CI_JOB_ID"), out int buildId);
+
+            var results = new TestResultsMetaData
+            {
+                TestName = TestContext.CurrentContext.Test.FullName,
+                Description = (string)TestContext.CurrentContext.Test.Properties.Get("Description"),
+                TestCaseIds = ((List<object>)TestContext.CurrentContext.Test.Properties["TestCaseIds"]).ConvertAll(x => (int)x),
+                TestCategories = ((List<object>)TestContext.CurrentContext.Test.Properties["Category"]).ConvertAll(x => (string)x),
+
+                Environment = ApplicationSettings.TargetEnvironment,
+                Country = ApplicationSettings.TargetCountry,
+                Language = ApplicationSettings.TargetLanguage,
+
+                Browser = GetDriverType(_targetBrowser.Name),
+                BrowserVersion = _targetBrowser.Version,
+                MachineName = Environment.MachineName,
+                OS = ApplicationSettings.OperatingSystemName(),
+                OnCi = onCi,
+                TestInputData = DataCache<ThreadSafeTestProperties>().TestInputData,
+                TimeRun = TestStartTime,
+                TestDuration = _testDuration.TotalSeconds,
+                Outcome = TestContext.CurrentContext.Result.Outcome.Status.ToString(),
+
+                CicdBuildId = buildId,
+                CicdPipelineId = pipelineId,
+                ProjectId = projectId,
+                BranchName = Environment.GetEnvironmentVariable("CI_COMMIT_REF_NAME"),
+
+                Files = new List<MongoDB.Bson.BsonObjectId>()
+            };
+
             // If the test failed, capture important test assets created on Sauce Labs
             if (didTestFail)
             {
+                var id = TestDataProvider.StoreFile(ApplicationSettings.TestResultsDb, $"{TestContext.CurrentContext.Test.FullName}.html",
+                    TestWebDriver.PageSource, TestDataProvider.FileBucketType.Html, new Dictionary<string, string> { { "TestName", TestContext.CurrentContext.Test.FullName } });
+                results.Files.Add(id);
+
+                var pictureFileName = TestWebDriver.TakeScreenShot(_testResultsFolder, TestContext.CurrentContext.Test.Name, Logger);
+                id = TestDataProvider.StoreFile(ApplicationSettings.TestResultsDb, pictureFileName, TestDataProvider.FileBucketType.Screenshots,
+                    new Dictionary<string, string> { { "TestName", TestContext.CurrentContext.Test.FullName } });
+                results.Files.Add(id);
                 Logger.Error($"URL of failed test: {TestWebDriver.Url}");
             }
             try
@@ -218,12 +283,23 @@ namespace Star.Core
                 //Hide WebDriver exceptions here after the test has finished.
                 TestWebDriver = null;
             }
+            Logger.Logger.Repository.Shutdown();
+
+            results.Log = File.ReadLines(LogFilePath).ToArray();
+            var resultId = TestDataProvider.PublishTestResults(results, ApplicationSettings.TestResultsDb, ApplicationSettings.TestResultsCollection);
+            // Update the metadata of the files stored in GridFS for this test with the DB id of the matching test result document to link them together.
+            TestDataProvider.AddTestIds(ApplicationSettings.TestResultsDb, results.Files, resultId);
         }
 
         #endregion
 
         #region Public Methods
 
+        /// <summary>
+        /// Fetch or save a value in the global test data cache.
+        /// </summary>
+        /// <typeparam name="T">The object type to fetch or save.</typeparam>
+        /// <returns></returns>
         public T DataCache<T>() where T : new()
         {
             // Try to get the tests data cache ditionary
@@ -247,6 +323,15 @@ namespace Star.Core
             T poco = new T();
             testsDataCache.TryAdd(typeof(T), poco);
             return poco;
+        }
+
+        /// <summary>
+        /// Save a snapshot of the test input data so that it can be saved as part of the test results in the DB.
+        /// </summary>
+        /// <param name="inputData">The C# object containing the test input data.</param>
+        public void CaptureTestInputData(object inputData)
+        {
+            DataCache<ThreadSafeTestProperties>().TestInputData = inputData;
         }
 
         #endregion

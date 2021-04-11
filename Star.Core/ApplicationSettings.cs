@@ -24,6 +24,8 @@ namespace Star.Core
             public string TargetCountry { get; set; }
             public string TargetLanguage { get; set; }
             public string MongoDBConnectionString { get; set; }
+            public string TestResultsDb { get; set; }
+            public string TestResultsCollection { get; set; }
         }
 
         #endregion
@@ -64,6 +66,8 @@ namespace Star.Core
         public static TimeSpan SeleniumCommandTimeOutTimeSpan => TimeSpan.FromSeconds(Settings.SeleniumCommandTimeout);
         public static WebDriverType StarDriverType => Enum.Parse<WebDriverType>(Settings.StarDriverType);
         public static string MongoDBConnectionString => Settings.MongoDBConnectionString;
+        public static string TestResultsDb => Settings.TestResultsDb;
+        public static string TestResultsCollection => Settings.TestResultsCollection;
 
         public static Size ScreenResolution
         {
@@ -97,6 +101,7 @@ namespace Star.Core
         public static string OperatingSystemName()
         {
             var searcher = new ManagementObjectSearcher("SELECT Caption FROM Win32_OperatingSystem");
+            // The .Get() takes a few seconds to execute. I can't find a way to speed it up, or a better alternative that works for Windows 10 and above.
             var osName =
                 searcher.Get().Cast<ManagementObject>().Select(o => o.GetPropertyValue("Caption")).FirstOrDefault();
             return osName?.ToString() ?? "Unknown";
