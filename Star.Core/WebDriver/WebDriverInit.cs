@@ -69,7 +69,6 @@ namespace Star.Core.WebDriver
                 case WebDriverType.Firefox:
                     // If we don't launch the FirefoxDriver this way, it runs VERY slowly in a .net core application
                     FirefoxDriverService geckoService = FirefoxDriverService.CreateDefaultService();
-                    geckoService.Host = "::1";
                     var firefoxProfile = optionsFactory.GetFirefoxProfile(browserOptions);
                     var firefoxDriver = new FirefoxDriver(geckoService, firefoxProfile,
                         ApplicationSettings.SeleniumCommandTimeOutTimeSpan);
