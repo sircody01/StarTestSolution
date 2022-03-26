@@ -18,7 +18,7 @@ namespace Star.Core.WebDriver
 
         public static WebDriverType GetDriverType(string browserName)
         {
-            if (browserName == null) return WebDriverType.Chrome;
+            if (browserName == null) return WebDriverType.Undefined;
             switch (browserName)
             {
                 case "Chrome":

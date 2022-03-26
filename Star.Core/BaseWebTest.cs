@@ -237,8 +237,8 @@ namespace Star.Core
                 Country = ApplicationSettings.TargetCountry,
                 Language = ApplicationSettings.TargetLanguage,
 
-                Browser = GetDriverType(_targetBrowser.Name),
-                BrowserVersion = _targetBrowser.Version,
+                Browser = GetDriverType(_targetBrowser?.Name),
+                BrowserVersion = _targetBrowser?.Version,
                 MachineName = Environment.MachineName,
                 OS = ApplicationSettings.OperatingSystemName(),
                 OnCi = onCi,
@@ -259,14 +259,15 @@ namespace Star.Core
             if (didTestFail)
             {
                 var id = TestDataProvider.StoreFile(ApplicationSettings.TestResultsDb, $"{TestContext.CurrentContext.Test.FullName}.html",
-                    TestWebDriver.PageSource, TestDataProvider.FileBucketType.Html, new Dictionary<string, string> { { "TestName", TestContext.CurrentContext.Test.FullName } });
+                    TestWebDriver?.PageSource, TestDataProvider.FileBucketType.Html, new Dictionary<string, string> { { "TestName", TestContext.CurrentContext.Test.FullName } });
                 results.Files.Add(id);
 
                 var pictureFileName = TestWebDriver.TakeScreenShot(_testResultsFolder, TestContext.CurrentContext.Test.Name, Logger);
-                id = TestDataProvider.StoreFile(ApplicationSettings.TestResultsDb, pictureFileName, TestDataProvider.FileBucketType.Screenshots,
-                    new Dictionary<string, string> { { "TestName", TestContext.CurrentContext.Test.FullName } });
+                if (pictureFileName != null)
+                    id = TestDataProvider.StoreFile(ApplicationSettings.TestResultsDb, pictureFileName, TestDataProvider.FileBucketType.Screenshots,
+                        new Dictionary<string, string> { { "TestName", TestContext.CurrentContext.Test.FullName } });
                 results.Files.Add(id);
-                Logger.Error($"URL of failed test: {TestWebDriver.Url}");
+                Logger.Error($"URL of failed test: {TestWebDriver?.Url}");
             }
             try
             {

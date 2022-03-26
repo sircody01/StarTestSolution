@@ -6,6 +6,11 @@
     public enum WebDriverType
     {
         /// <summary>
+        /// When the driver type specified in appsettings is unrecognized
+        /// </summary>
+        Undefined,
+
+        /// <summary>
         /// Mozilla Firefox
         /// </summary>
         Firefox,
@@ -23,6 +28,6 @@
         /// <summary>
         /// The Microsoft Edge Browser
         /// </summary>
-        Edge,
+        Edge
     }
 }

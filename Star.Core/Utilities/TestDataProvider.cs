@@ -106,7 +106,7 @@ namespace Star.Core.Utilities
             };
             fSUploadOptions.Metadata.AddRange(metaData);
 
-            var id = bucket.UploadFromBytes(datumName, Encoding.ASCII.GetBytes(datum), fSUploadOptions);
+            var id = bucket.UploadFromBytes(datumName, Encoding.ASCII.GetBytes(datum ?? ""), fSUploadOptions);
             return id;
         }
 
