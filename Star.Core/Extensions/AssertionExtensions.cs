@@ -41,9 +41,9 @@ namespace Star.Core.Extensions
     {
         protected override string Identifier => "IWebElement";
 
-        public WebElementAssertions(IWebElement value)
+        public WebElementAssertions(IWebElement webElement)
+            : base(webElement)
         {
-            Subject = value;
         }
 
         /// <summary>
@@ -1062,8 +1062,8 @@ namespace Star.Core.Extensions
         protected override string Identifier => "IWebDriver";
 
         public WebDriverAssertions(IWebDriver webDriver)
+            : base(webDriver)
         {
-            Subject = webDriver;
         }
 
         /// <summary>
