@@ -7,9 +7,9 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Edge.SeleniumTools" Version="3.141.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
-    <PackageReference Include="NUnit" Version="3.13.0" />
-    <PackageReference Include="NUnit.ConsoleRunner" Version="3.11.1" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
+    <PackageReference Include="NUnit" Version="3.13.3" />
+    <PackageReference Include="NUnit.ConsoleRunner" Version="3.15.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
     <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="99.0.4844.5100" />
     <PackageReference Include="Selenium.WebDriver.GeckoDriver.Win64" Version="0.30.0.1" />
     <PackageReference Include="Selenium.WebDriver.IEDriver" Version="4.0.0.1" />
