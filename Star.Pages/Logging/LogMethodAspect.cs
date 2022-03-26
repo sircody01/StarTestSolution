@@ -4,6 +4,7 @@ using System.Linq;
 using log4net;
 using PostSharp.Aspects;
 using PostSharp.Extensibility;
+using PostSharp.Serialization;
 using Star.Core.Page;
 using Star.Pages.Logging;
 
@@ -26,7 +27,7 @@ using Star.Pages.Logging;
 
 namespace Star.Pages.Logging
 {
-    [Serializable]
+    [PSerializable]
     [DebuggerStepThrough]
     public sealed class LogMethodAspect : OnMethodBoundaryAspect
     {
