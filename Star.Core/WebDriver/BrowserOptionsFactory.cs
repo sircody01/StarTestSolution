@@ -53,10 +53,7 @@ namespace Star.Core.WebDriver
 
         public EdgeOptions GetEdgeOptions(params BrowserOptionFlag[] flags)
         {
-            var opts = new EdgeOptions
-            {
-                UseInPrivateBrowsing = true
-            };
+            EdgeOptions opts = new EdgeOptions();
 
             return opts;
         }
